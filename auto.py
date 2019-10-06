@@ -9,16 +9,20 @@ app_readExcel.display_alerts = False
 app_readExcel.screen_updating = False
 
 
-def make_dir(prefix, name):
-    dir_path = prefix + '\\' + 'prj{}.mpj'.format(name)
-    if os.path.exists(dir_path):
-        pass
+# 创建工程目录
+def make_prj_dir(prefix, name):
+    prj_dir = prefix + '\\' + 'prj{}.mpj'.format(name)
+    if os.path.exists(prj_dir):
+        print('Already have the project directory:\n{}.\n'
+              'Project will continue to use this directory.'.format(prj_dir))
     else:
-        os.mkdir(dir_path)
-    return dir_path
+        os.mkdir(prj_dir)
+    return prj_dir
 
 
+# 移动txt文件
 def move_txt(src, dst, file, label):
+    # 确保目的路径存在，避免文件丢失
     assert os.path.isabs(src)
     if label == 'Ⅰ':
         d_name = '1'
@@ -28,35 +32,41 @@ def move_txt(src, dst, file, label):
         d_name = '3'
     else:
         d_name = '4'
-    print(d_name)
-    print(dst + '\\' + d_name + '\\' + file)
-    shutil.copy(src, dst + '\\' + d_name + '\\' + file)
+    print('d_name:{}'.format(d_name))
+    label_dir = dst + '\\' + d_name + '\\' + file
+    print('label directory:{}'.format(label_dir))
+    shutil.copy(src, label_dir)
 
 
-def create_prj(prefix_path):
+# 创建单个工程目录并移动mrt文件
+def create_prj_and_move_mrt(prefix):
     # mrt转入工程目录
     for index, i in enumerate(range(41, 88)):
-        prj_path = make_dir(path, name=i)  # 创建单个工程目录
+        prj_path = make_prj_dir(path, name=i)  # 创建单个工程目录
         print('dir_path:{}'.format(prj_path))
-        shutil.copy(prefix_path, prj_path + '\\' + 'prj{}.mpj'.format(i))  # 移动工程文件到刚创建的目录并重命名
+        # 移动工程文件到刚创建的目录并重命名，注意工程文件名和工程目录文件名同名
+        shutil.copy(prefix, prj_path + '\\' + 'prj{}.mpj'.format(i))
         mrt_dst = prj_path + '\\' + 'prj{}'.format(i)  # 构造mrt的绝对路径
+        # 创建数据文件的目录
+        # 这里的问题是如果已存在目录，会抛出错误，因此不再创建目录
         # if os.path.exists(mrt_dst):
         #     pass
         # else:
         #     mrt_dst = os.mkdir(mrt_dst)
-        # 创建数据文件的目录
-        # 这里的问题是如果已存在目录，会抛出错误，因此不再创建目录
-
         print('mrt_dst:{}'.format(mrt_dst))  # 显示文件dst绝对路径
-        print('mrt_list{}:{}'.format(index, mrt_path + '\\' + mrt_list[index]))  # 显示文件src绝对路径
+        print('mrt_list{}:{}'.format(index, mrt_path + '\\' + mrt_list[index]))  # 显示mrt文件src绝对路径
         shutil.copytree(mrt_path + '\\' + mrt_list[index], mrt_dst)  # 移动文件
     # print(os.listdir(path))  # 显示所有创建的工程文件
 
+# 中间使用长盛软件重建工程，重建数据表，导出Excel；使用DataOupt对每个工程转换mrt成txt
 
-def txt_classification(prefix_path):
-    # prefix_path为所有工程目录的父目录
+
+# 遍历每个工程，按Excel移动txt文件
+def txt_classification(prefix):
+    # prefix为所有工程目录的父目录
     for index, i in enumerate(range(41, 42)):
-        prj_path = make_dir(prefix_path, name=i)  # 已创建的目录，直接返回目工程目录路径
+        # prj_path = prefix + '\\' + 'prj{}.mpj'.format(name)
+        prj_path = make_prj_dir(prefix, name=i)  # 若为已创建的目录，直接返回工程目录的路径
         file = [item for item in os.listdir(prj_path) if '.xlsx' in item][0]
         print(file)
         excel_path = prj_path + '\\' + file.lstrip('~$')
@@ -80,7 +90,7 @@ def txt_classification(prefix_path):
             file = file.replace('mrt', 'txt')  # 修改后缀
             print(file)
             src_path = prj_mrt_path + '\\' + file
-            dst_path = prefix_path + '\\' + '..' + '\\' + 'classification_data'
+            dst_path = prefix + '\\' + '..' + '\\' + 'classification_data'
             print(label[j])
             move_txt(src_path, dst_path, file, label[j])
 
@@ -92,8 +102,11 @@ if __name__ == '__main__':
     path = 'F:\\automaogan\\splitmpj'  # 在当前目录下创建所有工程的文件夹
     file_path = 'F:\\automaogan\\1DY.mpj\\1DY.mpj'  # 一个模板工程文件的绝对路径
     mrt_path = 'F:\\automaogan\\mrt_fenzu'  # 吴分组好的数据的父目录
-    # print(os.listdir(mrt_path))
-    mrt_list = os.listdir(mrt_path)  # 列表，元素为所有mrt的文件名
+    # 列表，元素为所有mrt的文件夹名，保证升序
+    mrt_list = os.listdir(mrt_path)
+    mrt_list = sorted(mrt_list,
+                      key=lambda item: int(item),
+                      reverse=False)
     print(mrt_list)
-    # create_prj(file_path)
+    create_prj_and_move_mrt(file_path)
     # txt_classification(path)
