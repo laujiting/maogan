@@ -35,7 +35,7 @@ def move_txt(src, dst, file, label):
     print('d_name:{}'.format(d_name))
     label_dir = dst + '\\' + d_name + '\\' + file
     print('label directory:{}'.format(label_dir))
-    shutil.copy(src, label_dir)
+    shutil.move(src, label_dir)
 
 
 # 创建单个工程目录并移动mrt文件
@@ -107,6 +107,6 @@ if __name__ == '__main__':
     mrt_list = sorted(mrt_list,
                       key=lambda item: int(item),
                       reverse=False)
-    print(mrt_list)
-    create_prj_and_move_mrt(file_path)
-    # txt_classification(path)
+    # print(mrt_list)
+    # create_prj_and_move_mrt(file_path)
+    txt_classification(path)
