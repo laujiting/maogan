@@ -22,10 +22,10 @@ def read_excel(file):
     label = sht.range('K2:K{}'.format(rows)).value
     label = [item.rstrip('类') for item in label if item]# [:4]  # 去除空值
     print(len(label), label)
-    for item in label:
+    '''for item in label:
         if item in 'Ⅰ':
             print(len(file_name), file_name)
-            print(len(label), label)
+            print(len(label), label)'''
     '''prj_mrt_path = prj_path + '\\' + 'prj{}'.format(i)
     mrt_name = [item for item in os.listdir(prj_mrt_path) if item[-3:] == 'mrt']
     print(mrt_name)

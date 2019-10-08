@@ -35,7 +35,7 @@ def move_txt(src, dst, file, label):
     print('d_name:{}'.format(d_name))
     label_dir = dst + '\\' + d_name + '\\' + file
     print('label directory:{}'.format(label_dir))
-    shutil.move(src, label_dir)
+    shutil.copy(src, label_dir)
 
 
 # 创建单个工程目录并移动mrt文件
